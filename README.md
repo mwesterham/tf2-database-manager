@@ -175,6 +175,25 @@ New migrations: add a `V6__description.sql` file and restart the service.
 
 ## Kubernetes
 
-See `k8s-mwesterham-homelab/configuration/services/tf2autobot/tf2-manager-storage/` for the Postgres PVC, Deployment, and Service manifests.
+Deployed in the `tf2-manager` namespace on the homelab cluster.
 
-The service itself is deployed from `tf2autobot/tf2-manager/` (namespace: `tf2-manager`).
+| Resource | Address |
+|---|---|
+| REST API | `http://tf2-manager.ani:8081` / `http://192.168.1.218:8081` |
+| Postgres | `tf2-manager-postgres.ani:5432` / `192.168.1.219:5432` |
+
+Manifests live in `k8s-mwesterham-homelab`:
+
+```
+configuration/services/tf2autobot/
+├── tf2-manager-storage/       # Postgres PVC, Deployment, Service
+│   ├── configmap.yaml
+│   ├── postgres-pvc.yaml
+│   └── tf2-manager-postgres.yaml
+└── tf2-manager/               # App Deployment, Service, Secrets
+    ├── tf2-manager.yaml
+    ├── tf2-manager-secrets.yaml          (gitignored — fill from template)
+    └── tf2-manager-secrets.yaml.template
+```
+
+See the homelab README for the full deploy runbook.
