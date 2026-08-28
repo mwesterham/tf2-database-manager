@@ -179,8 +179,8 @@ Deployed in the `tf2-manager` namespace on the homelab cluster.
 
 | Resource | Address |
 |---|---|
-| REST API | `http://tf2-manager.ani:8081` / `http://192.168.1.218:8081` |
-| Postgres | `tf2-manager-postgres.ani:5432` / `192.168.1.219:5432` |
+| REST API | `http://tf2-manager.ani:8081` |
+| Postgres | `tf2-manager-postgres.ani:5432` |
 
 Manifests live in `k8s-mwesterham-homelab`:
 
