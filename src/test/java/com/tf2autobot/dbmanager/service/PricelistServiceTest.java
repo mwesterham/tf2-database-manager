@@ -80,7 +80,7 @@ class PricelistServiceTest {
                 "100;6", true, false, 2, 0, 1,
                 new CurrenciesDto(1, new BigDecimal("0.11")),
                 new CurrenciesDto(1, new BigDecimal("0.33")),
-                null, null, null
+                null, false, null, null
         );
         PricelistEntryDto result = service.upsert(dto);
         assertThat(result.sku()).isEqualTo("100;6");
