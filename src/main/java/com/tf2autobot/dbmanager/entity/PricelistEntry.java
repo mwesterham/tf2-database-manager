@@ -48,6 +48,9 @@ public class PricelistEntry {
     @Column(columnDefinition = "TEXT")
     private String note;
 
+    @Column(name = "auto_managed", nullable = false)
+    private boolean autoManaged = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

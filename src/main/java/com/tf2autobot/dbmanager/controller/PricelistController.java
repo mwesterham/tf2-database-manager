@@ -35,7 +35,7 @@ public class PricelistController {
         // Ensure the path sku matches the body sku by reconstructing with path sku
         PricelistEntryDto normalized = new PricelistEntryDto(
                 sku, dto.enabled(), dto.autoprice(), dto.intent(),
-                dto.min(), dto.max(), dto.buy(), dto.sell(), dto.note(),
+                dto.min(), dto.max(), dto.buy(), dto.sell(), dto.note(), dto.autoManaged(),
                 dto.createdAt(), dto.updatedAt()
         );
         return service.upsert(normalized);

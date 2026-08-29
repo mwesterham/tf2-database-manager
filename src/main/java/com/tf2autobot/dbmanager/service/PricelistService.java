@@ -63,6 +63,7 @@ public class PricelistService {
         e.setMin(dto.min());
         e.setMax(dto.max());
         e.setNote(dto.note());
+        e.setAutoManaged(dto.autoManaged());
 
         CurrenciesDto buy = dto.buy();
         if (buy != null) {

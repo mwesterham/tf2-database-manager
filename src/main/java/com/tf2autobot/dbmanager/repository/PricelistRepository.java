@@ -10,4 +10,5 @@ import java.util.List;
 public interface PricelistRepository extends JpaRepository<PricelistEntry, String> {
     List<PricelistEntry> findAllByEnabled(boolean enabled);
     List<PricelistEntry> findAllByIntent(int intent);
+    List<PricelistEntry> findAllByAutoManaged(boolean autoManaged);
 }

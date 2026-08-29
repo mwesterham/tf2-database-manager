@@ -17,6 +17,15 @@ public interface TradeEventItemRepository extends JpaRepository<TradeEventItem, 
             """, nativeQuery = true)
     List<Object[]> findMostTradedItems();
 
+    // Returns SKUs where net received > net given (bot is holding at least one unit)
+    @Query(value = """
+            SELECT tei.sku
+            FROM trade_event_items tei
+            GROUP BY tei.sku
+            HAVING SUM(CASE WHEN tei.direction = 'received' THEN 1 ELSE -1 END) > 0
+            """, nativeQuery = true)
+    List<String> findHeldItemSkus();
+
     @Query(value = """
             SELECT tei.sku, SUM(te.profit_in_refined) AS total_profit
             FROM trade_event_items tei
