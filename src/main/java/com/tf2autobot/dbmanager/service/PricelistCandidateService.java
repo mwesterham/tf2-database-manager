@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +95,10 @@ public class PricelistCandidateService {
             entry.setAutoManaged(true);
             entry.setNote("auto");
             entry.setCreatedAt(Instant.now());
+            entry.setBuyKeys(0);
+            entry.setBuyMetal(BigDecimal.valueOf(candidate.bestBuyMetal()));
+            entry.setSellKeys(0);
+            entry.setSellMetal(BigDecimal.valueOf(candidate.bestSellMetal()));
             pricelistRepository.save(entry);
             log.info("Added auto-managed entry: {} ({})", candidate.sku(), candidate.marketName());
         }
