@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,21 @@ public class PricelistCandidateService {
             log.info("Removing {} auto-managed items that dropped off the candidate list: {}", toRemove.size(), toRemove);
             toRemove.forEach(pricelistRepository::deleteById);
         }
+
+        // Backfill prices on existing auto-managed entries that were created with null prices
+        Map<String, CandidateItemDto> candidateBySkus = candidates.stream()
+            .collect(Collectors.toMap(CandidateItemDto::sku, c -> c));
+        autoManaged.stream()
+            .filter(e -> e.getBuyMetal() == null && candidateBySkus.containsKey(e.getSku()))
+            .forEach(e -> {
+                CandidateItemDto c = candidateBySkus.get(e.getSku());
+                e.setBuyKeys(0);
+                e.setBuyMetal(BigDecimal.valueOf(c.bestBuyMetal()));
+                e.setSellKeys(0);
+                e.setSellMetal(BigDecimal.valueOf(c.bestSellMetal()));
+                pricelistRepository.save(e);
+                log.info("Backfilled prices for existing entry: {} buy={} sell={}", e.getSku(), c.bestBuyMetal(), c.bestSellMetal());
+            });
 
         // Add top candidates not already in the pricelist, up to the cap
         long currentAutoCount = pricelistRepository.findAllByAutoManaged(true).size();
