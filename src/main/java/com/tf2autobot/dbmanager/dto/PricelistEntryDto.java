@@ -17,6 +17,7 @@ public record PricelistEntryDto(
         CurrenciesDto sell,
         String note,
         boolean autoManaged,
+        boolean integTestOnly,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -28,7 +29,7 @@ public record PricelistEntryDto(
         return new PricelistEntryDto(
                 e.getSku(), e.isEnabled(), e.isAutoprice(), e.getIntent(),
                 e.getMin(), e.getMax(), buy, sell, e.getNote(), e.isAutoManaged(),
-                e.getCreatedAt(), e.getUpdatedAt()
+                e.isIntegTestOnly(), e.getCreatedAt(), e.getUpdatedAt()
         );
     }
 }

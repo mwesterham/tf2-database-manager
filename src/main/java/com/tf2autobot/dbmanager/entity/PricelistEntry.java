@@ -51,6 +51,9 @@ public class PricelistEntry {
     @Column(name = "auto_managed", nullable = false)
     private boolean autoManaged = false;
 
+    @Column(name = "integ_test_only", nullable = false)
+    private boolean integTestOnly = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

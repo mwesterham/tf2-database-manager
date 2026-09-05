@@ -36,7 +36,7 @@ public class PricelistController {
         PricelistEntryDto normalized = new PricelistEntryDto(
                 sku, dto.enabled(), dto.autoprice(), dto.intent(),
                 dto.min(), dto.max(), dto.buy(), dto.sell(), dto.note(), dto.autoManaged(),
-                dto.createdAt(), dto.updatedAt()
+                dto.integTestOnly(), dto.createdAt(), dto.updatedAt()
         );
         return service.upsert(normalized);
     }
