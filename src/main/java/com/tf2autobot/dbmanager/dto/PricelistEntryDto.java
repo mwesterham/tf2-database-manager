@@ -22,10 +22,10 @@ public record PricelistEntryDto(
         Instant updatedAt
 ) {
     public static PricelistEntryDto from(PricelistEntry e) {
-        CurrenciesDto buy = (e.getBuyKeys() != null || e.getBuyMetal() != null)
-                ? new CurrenciesDto(e.getBuyKeys(), e.getBuyMetal()) : null;
-        CurrenciesDto sell = (e.getSellKeys() != null || e.getSellMetal() != null)
-                ? new CurrenciesDto(e.getSellKeys(), e.getSellMetal()) : null;
+        CurrenciesDto buy = (e.getBuyKeys() != null || e.getBuyHalfScrap() != null)
+                ? new CurrenciesDto(e.getBuyKeys(), e.getBuyHalfScrap()) : null;
+        CurrenciesDto sell = (e.getSellKeys() != null || e.getSellHalfScrap() != null)
+                ? new CurrenciesDto(e.getSellKeys(), e.getSellHalfScrap()) : null;
         return new PricelistEntryDto(
                 e.getSku(), e.isEnabled(), e.isAutoprice(), e.getIntent(),
                 e.getMin(), e.getMax(), buy, sell, e.getNote(), e.isAutoManaged(),

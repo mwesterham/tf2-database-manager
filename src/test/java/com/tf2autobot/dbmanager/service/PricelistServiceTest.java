@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,9 +40,9 @@ class PricelistServiceTest {
         sampleEntry.setMin(0);
         sampleEntry.setMax(1);
         sampleEntry.setBuyKeys(1);
-        sampleEntry.setBuyMetal(new BigDecimal("0.33"));
+        sampleEntry.setBuyHalfScrap(6L);
         sampleEntry.setSellKeys(1);
-        sampleEntry.setSellMetal(new BigDecimal("0.66"));
+        sampleEntry.setSellHalfScrap(12L);
     }
 
     @Test
@@ -78,8 +77,8 @@ class PricelistServiceTest {
 
         PricelistEntryDto dto = new PricelistEntryDto(
                 "100;6", true, false, 2, 0, 1,
-                new CurrenciesDto(1, new BigDecimal("0.11")),
-                new CurrenciesDto(1, new BigDecimal("0.33")),
+                new CurrenciesDto(1, 2L),
+                new CurrenciesDto(1, 6L),
                 null, false, false, null, null
         );
         PricelistEntryDto result = service.upsert(dto);

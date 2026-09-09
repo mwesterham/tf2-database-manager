@@ -69,19 +69,19 @@ public class PricelistService {
         CurrenciesDto buy = dto.buy();
         if (buy != null) {
             e.setBuyKeys(buy.keys());
-            e.setBuyMetal(buy.metal());
+            e.setBuyHalfScrap(buy.halfScrap());
         } else {
             e.setBuyKeys(null);
-            e.setBuyMetal(null);
+            e.setBuyHalfScrap(null);
         }
 
         CurrenciesDto sell = dto.sell();
         if (sell != null) {
             e.setSellKeys(sell.keys());
-            e.setSellMetal(sell.metal());
+            e.setSellHalfScrap(sell.halfScrap());
         } else {
             e.setSellKeys(null);
-            e.setSellMetal(null);
+            e.setSellHalfScrap(null);
         }
     }
 

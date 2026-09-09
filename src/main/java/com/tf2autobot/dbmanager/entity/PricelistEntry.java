@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -36,14 +35,14 @@ public class PricelistEntry {
     @Column(name = "buy_keys")
     private Integer buyKeys;
 
-    @Column(name = "buy_metal", precision = 10, scale = 4)
-    private BigDecimal buyMetal;
+    @Column(name = "buy_half_scrap")
+    private Long buyHalfScrap;
 
     @Column(name = "sell_keys")
     private Integer sellKeys;
 
-    @Column(name = "sell_metal", precision = 10, scale = 4)
-    private BigDecimal sellMetal;
+    @Column(name = "sell_half_scrap")
+    private Long sellHalfScrap;
 
     @Column(columnDefinition = "TEXT")
     private String note;
