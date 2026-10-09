@@ -1,10 +1,15 @@
 package com.tf2autobot.dbmanager.controller;
 
+import com.tf2autobot.dbmanager.dto.DailyProfitDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDto;
+import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
 import com.tf2autobot.dbmanager.service.TradeEventService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/trade-events")
@@ -22,6 +27,27 @@ public class TradeEventController {
                 dto.itemsGiven() != null ? dto.itemsGiven() : java.util.List.of(),
                 dto.itemsReceived() != null ? dto.itemsReceived() : java.util.List.of());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public Page<TradeEventListItemDto> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) String partner,
+            @RequestParam(required = false) String offerId,
+            @RequestParam(required = false) Double minProfit,
+            @RequestParam(required = false) Double maxProfit,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(required = false) String item) {
+        return service.list(page, size, sort, direction, partner, offerId, minProfit, maxProfit, dateFrom, dateTo, item);
+    }
+
+    @GetMapping("/daily-profit")
+    public List<DailyProfitDto> dailyProfit() {
+        return service.getDailyProfit();
     }
 
     @GetMapping("/stats")

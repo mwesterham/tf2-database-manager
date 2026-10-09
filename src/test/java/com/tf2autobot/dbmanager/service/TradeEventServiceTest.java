@@ -24,7 +24,8 @@ class TradeEventServiceTest {
     void setUp() {
         eventRepo = mock(TradeEventRepository.class);
         itemRepo = mock(TradeEventItemRepository.class);
-        service = new TradeEventService(eventRepo, itemRepo);
+        service = new TradeEventService(eventRepo, itemRepo,
+                mock(SteamUserService.class), mock(SchemaService.class));
     }
 
     @Test
