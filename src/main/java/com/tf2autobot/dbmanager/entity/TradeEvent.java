@@ -30,6 +30,9 @@ public class TradeEvent {
     @Column(name = "traded_at", nullable = false)
     private Instant tradedAt = Instant.now();
 
+    @Column(name = "status", nullable = false)
+    private String status = "accepted";
+
     @OneToMany(mappedBy = "tradeEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TradeEventItem> items = new ArrayList<>();
 }

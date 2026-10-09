@@ -23,7 +23,8 @@ public class TradeEventSpecs {
             String dateFrom,
             String dateTo,
             String item,
-            Set<Integer> itemDefindexes) {
+            Set<Integer> itemDefindexes,
+            String status) {
 
         return (root, query, cb) -> {
             var predicates = new ArrayList<Predicate>();
@@ -56,6 +57,9 @@ public class TradeEventSpecs {
                 Instant to = LocalDate.parse(dateTo).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
                 predicates.add(cb.lessThan(root.get("tradedAt"), to));
             }
+
+            if (status != null && !status.isBlank())
+                predicates.add(cb.equal(root.get("status"), status.trim().toLowerCase()));
 
             if (item != null && !item.isBlank()) {
                 query.distinct(true);

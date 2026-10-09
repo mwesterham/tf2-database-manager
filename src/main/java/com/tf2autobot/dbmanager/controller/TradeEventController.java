@@ -25,7 +25,8 @@ public class TradeEventController {
     public ResponseEntity<Void> record(@RequestBody TradeEventDto dto) {
         service.record(dto.offerId(), dto.partnerSteamId64(), dto.profitInRefined(),
                 dto.itemsGiven() != null ? dto.itemsGiven() : java.util.List.of(),
-                dto.itemsReceived() != null ? dto.itemsReceived() : java.util.List.of());
+                dto.itemsReceived() != null ? dto.itemsReceived() : java.util.List.of(),
+                dto.status());
         return ResponseEntity.ok().build();
     }
 
@@ -41,8 +42,9 @@ public class TradeEventController {
             @RequestParam(required = false) Double maxProfit,
             @RequestParam(required = false) String dateFrom,
             @RequestParam(required = false) String dateTo,
-            @RequestParam(required = false) String item) {
-        return service.list(page, size, sort, direction, partner, offerId, minProfit, maxProfit, dateFrom, dateTo, item);
+            @RequestParam(required = false) String item,
+            @RequestParam(required = false) String status) {
+        return service.list(page, size, sort, direction, partner, offerId, minProfit, maxProfit, dateFrom, dateTo, item, status);
     }
 
     @GetMapping("/daily-profit")

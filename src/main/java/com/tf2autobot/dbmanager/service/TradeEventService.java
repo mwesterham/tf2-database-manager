@@ -37,11 +37,12 @@ public class TradeEventService {
     }
 
     public void record(String offerId, String partnerSteamId64, double profitInRefined,
-                       List<String> itemsGiven, List<String> itemsReceived) {
+                       List<String> itemsGiven, List<String> itemsReceived, String status) {
         TradeEvent event = new TradeEvent();
         event.setOfferId(offerId);
         event.setPartnerSteamId64(partnerSteamId64);
         event.setProfitInRefined(profitInRefined);
+        event.setStatus(status != null ? status : "accepted");
 
         List<TradeEventItem> items = new ArrayList<>();
         for (String sku : itemsGiven) {
@@ -79,7 +80,7 @@ public class TradeEventService {
                                             String partner, String offerId,
                                             Double minProfit, Double maxProfit,
                                             String dateFrom, String dateTo,
-                                            String item) {
+                                            String item, String status) {
         Sort.Direction dir = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         String safeSort = ALLOWED_SORT_FIELDS.contains(sort) ? sort : "id";
         Pageable pageable = PageRequest.of(page, Math.min(size, 100), Sort.by(dir, safeSort));
@@ -89,7 +90,7 @@ public class TradeEventService {
         java.util.Set<Integer> itemDefindexes = (item != null && !item.isBlank())
                 ? schemaService.findDefindexesByName(item)
                 : java.util.Set.of();
-        Specification<TradeEvent> spec = TradeEventSpecs.withFilters(partner, nameMatches, offerId, minProfit, maxProfit, dateFrom, dateTo, item, itemDefindexes);
+        Specification<TradeEvent> spec = TradeEventSpecs.withFilters(partner, nameMatches, offerId, minProfit, maxProfit, dateFrom, dateTo, item, itemDefindexes, status);
         return eventRepo.findAll(spec, pageable).map(e -> {
             List<String> given = e.getItems().stream()
                     .filter(i -> "given".equals(i.getDirection()))
@@ -106,7 +107,8 @@ public class TradeEventService {
                     e.getProfitInRefined(),
                     e.getTradedAt().toString(),
                     given,
-                    received
+                    received,
+                    e.getStatus()
             );
         });
     }

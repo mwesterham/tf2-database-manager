@@ -32,7 +32,7 @@ class TradeEventServiceTest {
     void recordSavesEvent() {
         when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         service.record("offer-1", "76561198000000000", 1.33,
-                List.of("5021;6"), List.of("30;6"));
+                List.of("5021;6"), List.of("30;6"), "accepted");
         verify(eventRepo).save(any(TradeEvent.class));
     }
 
@@ -48,14 +48,14 @@ class TradeEventServiceTest {
             return e;
         });
         service.record("offer-1", "76561198000000001", 2.0,
-                List.of("5021;6"), List.of("30;6"));
+                List.of("5021;6"), List.of("30;6"), "accepted");
     }
 
     @Test
     void recordHandlesEmptyItemLists() {
         when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertDoesNotThrow(() -> service.record("offer-2", "76561198000000000", 0.0,
-                List.of(), List.of()));
+                List.of(), List.of(), "accepted"));
     }
 
     @Test

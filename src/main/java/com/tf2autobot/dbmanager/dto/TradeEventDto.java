@@ -7,5 +7,6 @@ public record TradeEventDto(
         String partnerSteamId64,
         double profitInRefined,
         List<String> itemsGiven,
-        List<String> itemsReceived
+        List<String> itemsReceived,
+        String status
 ) {}

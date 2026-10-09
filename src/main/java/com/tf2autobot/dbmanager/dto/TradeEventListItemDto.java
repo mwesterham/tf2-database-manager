@@ -9,5 +9,6 @@ public record TradeEventListItemDto(
         double profitInRefined,
         String tradedAt,
         List<String> itemsGiven,
-        List<String> itemsReceived
+        List<String> itemsReceived,
+        String status
 ) {}
