@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface TradeEventRepository extends JpaRepository<TradeEvent, Long>, JpaSpecificationExecutor<TradeEvent> {
 
+    boolean existsByOfferId(String offerId);
+
     @Query("SELECT SUM(e.profitInRefined) FROM TradeEvent e")
     Optional<Double> sumProfit();
 

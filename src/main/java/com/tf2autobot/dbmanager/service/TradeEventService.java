@@ -38,6 +38,7 @@ public class TradeEventService {
 
     public void record(String offerId, String partnerSteamId64, double profitInRefined,
                        List<String> itemsGiven, List<String> itemsReceived, String status) {
+        if (eventRepo.existsByOfferId(offerId)) return;
         TradeEvent event = new TradeEvent();
         event.setOfferId(offerId);
         event.setPartnerSteamId64(partnerSteamId64);
