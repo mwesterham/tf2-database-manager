@@ -35,4 +35,7 @@ public class TradeEvent {
 
     @OneToMany(mappedBy = "tradeEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TradeEventItem> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tradeEvent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TradeEventSnapshot> pricingSnapshot = new ArrayList<>();
 }

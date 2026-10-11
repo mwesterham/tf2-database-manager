@@ -24,9 +24,10 @@ public class TradeEventController {
     @PostMapping
     public ResponseEntity<Void> record(@RequestBody TradeEventDto dto) {
         service.record(dto.offerId(), dto.partnerSteamId64(), dto.profitInRefined(),
-                dto.itemsGiven() != null ? dto.itemsGiven() : java.util.List.of(),
-                dto.itemsReceived() != null ? dto.itemsReceived() : java.util.List.of(),
-                dto.status());
+                dto.itemsGiven()       != null ? dto.itemsGiven()       : java.util.List.of(),
+                dto.itemsReceived()    != null ? dto.itemsReceived()    : java.util.List.of(),
+                dto.status(),
+                dto.pricingSnapshot()  != null ? dto.pricingSnapshot()  : java.util.List.of());
         return ResponseEntity.ok().build();
     }
 

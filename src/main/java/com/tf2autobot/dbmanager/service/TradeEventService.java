@@ -5,6 +5,7 @@ import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
 import com.tf2autobot.dbmanager.entity.TradeEvent;
 import com.tf2autobot.dbmanager.entity.TradeEventItem;
+import com.tf2autobot.dbmanager.entity.TradeEventSnapshot;
 import com.tf2autobot.dbmanager.repository.TradeEventItemRepository;
 import com.tf2autobot.dbmanager.repository.TradeEventRepository;
 import com.tf2autobot.dbmanager.repository.TradeEventSpecs;
@@ -37,7 +38,10 @@ public class TradeEventService {
     }
 
     public void record(String offerId, String partnerSteamId64, double profitInRefined,
-                       List<String> itemsGiven, List<String> itemsReceived, String status) {
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.TradeItemDto> itemsGiven,
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.TradeItemDto> itemsReceived,
+                       String status,
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.SnapshotDto> pricingSnapshot) {
         if (eventRepo.existsByOfferId(offerId)) return;
         TradeEvent event = new TradeEvent();
         event.setOfferId(offerId);
@@ -46,21 +50,41 @@ public class TradeEventService {
         event.setStatus(status != null ? status : "accepted");
 
         List<TradeEventItem> items = new ArrayList<>();
-        for (String sku : itemsGiven) {
-            TradeEventItem item = new TradeEventItem();
-            item.setSku(sku);
-            item.setDirection("given");
-            item.setTradeEvent(event);
-            items.add(item);
+        if (itemsGiven != null) {
+            for (var dto : itemsGiven) {
+                TradeEventItem item = new TradeEventItem();
+                item.setSku(dto.sku());
+                item.setDirection("given");
+                item.setUsedPriceRefined(dto.usedPriceRefined());
+                item.setTradeEvent(event);
+                items.add(item);
+            }
         }
-        for (String sku : itemsReceived) {
-            TradeEventItem item = new TradeEventItem();
-            item.setSku(sku);
-            item.setDirection("received");
-            item.setTradeEvent(event);
-            items.add(item);
+        if (itemsReceived != null) {
+            for (var dto : itemsReceived) {
+                TradeEventItem item = new TradeEventItem();
+                item.setSku(dto.sku());
+                item.setDirection("received");
+                item.setUsedPriceRefined(dto.usedPriceRefined());
+                item.setTradeEvent(event);
+                items.add(item);
+            }
         }
         event.setItems(items);
+
+        List<TradeEventSnapshot> snapshots = new ArrayList<>();
+        if (pricingSnapshot != null) {
+            for (var dto : pricingSnapshot) {
+                TradeEventSnapshot snap = new TradeEventSnapshot();
+                snap.setSku(dto.sku());
+                snap.setBuyPriceRefined(dto.buyPriceRefined());
+                snap.setSellPriceRefined(dto.sellPriceRefined());
+                snap.setIntent(dto.intent());
+                snap.setTradeEvent(event);
+                snapshots.add(snap);
+            }
+        }
+        event.setPricingSnapshot(snapshots);
         eventRepo.save(event);
     }
 

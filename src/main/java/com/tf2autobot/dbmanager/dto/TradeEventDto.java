@@ -6,7 +6,11 @@ public record TradeEventDto(
         String offerId,
         String partnerSteamId64,
         double profitInRefined,
-        List<String> itemsGiven,
-        List<String> itemsReceived,
-        String status
-) {}
+        List<TradeItemDto> itemsGiven,
+        List<TradeItemDto> itemsReceived,
+        String status,
+        List<SnapshotDto> pricingSnapshot
+) {
+    public record TradeItemDto(String sku, double usedPriceRefined) {}
+    public record SnapshotDto(String sku, double buyPriceRefined, double sellPriceRefined, String intent) {}
+}

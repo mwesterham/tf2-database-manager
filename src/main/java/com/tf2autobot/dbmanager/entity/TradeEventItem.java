@@ -23,4 +23,7 @@ public class TradeEventItem {
 
     @Column(nullable = false)
     private String direction; // "given" or "received"
+
+    @Column(name = "used_price_refined", nullable = false)
+    private double usedPriceRefined;
 }
