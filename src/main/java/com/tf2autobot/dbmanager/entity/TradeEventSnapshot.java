@@ -29,4 +29,19 @@ public class TradeEventSnapshot {
 
     @Column(nullable = false)
     private String intent;
+
+    @Column(nullable = false)
+    private boolean enabled;
+
+    @Column(nullable = false)
+    private boolean autoprice;
+
+    @Column(name = "min_stock", nullable = false)
+    private int minStock;
+
+    @Column(name = "max_stock", nullable = false)
+    private int maxStock;
+
+    @Column(name = "auto_managed", nullable = false)
+    private boolean autoManaged;
 }

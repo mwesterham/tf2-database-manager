@@ -83,7 +83,7 @@ class TradeEventServiceTest {
         });
         service.record("offer-snap", "76561198000000001", 0.0,
                 List.of(item("5021;6")), List.of(), "accepted",
-                List.of(new TradeEventDto.SnapshotDto("5021;6", 1.22, 1.33, "bank")));
+                List.of(new TradeEventDto.SnapshotDto("5021;6", 1.22, 1.33, "bank", true, false, 0, 1, false)));
     }
 
     @Test

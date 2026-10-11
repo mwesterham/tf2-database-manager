@@ -81,6 +81,11 @@ public class TradeEventService {
                 snap.setBuyPriceRefined(dto.buyPriceRefined());
                 snap.setSellPriceRefined(dto.sellPriceRefined());
                 snap.setIntent(dto.intent());
+                snap.setEnabled(dto.enabled());
+                snap.setAutoprice(dto.autoprice());
+                snap.setMinStock(dto.minStock());
+                snap.setMaxStock(dto.maxStock());
+                snap.setAutoManaged(dto.autoManaged());
                 snap.setTradeEvent(event);
                 snapshots.add(snap);
             }
@@ -175,7 +180,8 @@ public class TradeEventService {
                 .toList();
         List<TradeEventDetailDto.SnapshotEntryDto> snapshot = e.getPricingSnapshot().stream()
                 .map(s -> new TradeEventDetailDto.SnapshotEntryDto(
-                        s.getSku(), s.getBuyPriceRefined(), s.getSellPriceRefined(), s.getIntent()))
+                        s.getSku(), s.getBuyPriceRefined(), s.getSellPriceRefined(), s.getIntent(),
+                        s.isEnabled(), s.isAutoprice(), s.getMinStock(), s.getMaxStock(), s.isAutoManaged()))
                 .toList();
         return new TradeEventDetailDto(
                 e.getId(), e.getOfferId(), e.getPartnerSteamId64(),

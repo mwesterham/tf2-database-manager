@@ -14,5 +14,6 @@ public record TradeEventDetailDto(
         List<SnapshotEntryDto> pricingSnapshot
 ) {
     public record TradeItemDto(String sku, double usedPriceRefined) {}
-    public record SnapshotEntryDto(String sku, double buyPriceRefined, double sellPriceRefined, String intent) {}
+    public record SnapshotEntryDto(String sku, double buyPriceRefined, double sellPriceRefined, String intent,
+                                   boolean enabled, boolean autoprice, int minStock, int maxStock, boolean autoManaged) {}
 }
