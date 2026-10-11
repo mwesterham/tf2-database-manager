@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/steam")
@@ -30,6 +31,25 @@ public class SteamProxyController {
                     + "&language=en"
                     + "&get_descriptions=1";
             HttpRequest req = HttpRequest.newBuilder(URI.create(url)).GET().build();
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(resp.statusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(resp.body());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+        }
+    }
+
+    @GetMapping(value = "/asset-class-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getAssetClassInfo(@RequestParam Map<String, String> params) {
+        try {
+            StringBuilder url = new StringBuilder(
+                    "https://api.steampowered.com/ISteamEconomy/GetAssetClassInfo/v1/?key=" + steamApiKey + "&language=en");
+            for (Map.Entry<String, String> e : params.entrySet()) {
+                url.append("&").append(e.getKey()).append("=").append(e.getValue());
+            }
+            HttpRequest req = HttpRequest.newBuilder(URI.create(url.toString())).GET().build();
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
             return ResponseEntity.status(resp.statusCode())
                     .contentType(MediaType.APPLICATION_JSON)
