@@ -9,9 +9,11 @@ public record TradeEventDto(
         List<TradeItemDto> itemsGiven,
         List<TradeItemDto> itemsReceived,
         String status,
-        List<SnapshotDto> pricingSnapshot
+        List<SnapshotDto> pricingSnapshot,
+        List<BptfListingDto> bptfListings
 ) {
     public record TradeItemDto(String sku, double usedPriceRefined) {}
     public record SnapshotDto(String sku, double buyPriceRefined, double sellPriceRefined, String intent,
                               boolean enabled, boolean autoprice, int minStock, int maxStock, boolean autoManaged) {}
+    public record BptfListingDto(String sku, String intent, int keys, long halfScrap, int stock, int limit) {}
 }

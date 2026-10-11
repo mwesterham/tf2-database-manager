@@ -37,7 +37,7 @@ class TradeEventServiceTest {
     void recordSavesEvent() {
         when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         service.record("offer-1", "76561198000000000", 1.33,
-                List.of(item("5021;6")), List.of(item("30;6")), "accepted", List.of());
+                List.of(item("5021;6")), List.of(item("30;6")), "accepted", List.of(), List.of());
         verify(eventRepo).save(any(TradeEvent.class));
     }
 
@@ -53,7 +53,7 @@ class TradeEventServiceTest {
             return e;
         });
         service.record("offer-1", "76561198000000001", 2.0,
-                List.of(item("5021;6")), List.of(item("30;6")), "accepted", List.of());
+                List.of(item("5021;6")), List.of(item("30;6")), "accepted", List.of(), List.of());
     }
 
     @Test
@@ -67,7 +67,7 @@ class TradeEventServiceTest {
         service.record("offer-prices", "76561198000000001", 0.0,
                 List.of(new TradeEventDto.TradeItemDto("5021;6", 1.33)),
                 List.of(new TradeEventDto.TradeItemDto("30;6", 2.55)),
-                "accepted", List.of());
+                "accepted", List.of(), List.of());
     }
 
     @Test
@@ -83,14 +83,15 @@ class TradeEventServiceTest {
         });
         service.record("offer-snap", "76561198000000001", 0.0,
                 List.of(item("5021;6")), List.of(), "accepted",
-                List.of(new TradeEventDto.SnapshotDto("5021;6", 1.22, 1.33, "bank", true, false, 0, 1, false)));
+                List.of(new TradeEventDto.SnapshotDto("5021;6", 1.22, 1.33, "bank", true, false, 0, 1, false)),
+                List.of());
     }
 
     @Test
     void recordHandlesEmptyItemLists() {
         when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertDoesNotThrow(() -> service.record("offer-2", "76561198000000000", 0.0,
-                List.of(), List.of(), "accepted", List.of()));
+                List.of(), List.of(), "accepted", List.of(), List.of()));
     }
 
     @Test

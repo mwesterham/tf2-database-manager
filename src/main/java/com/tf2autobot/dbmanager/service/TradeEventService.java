@@ -5,6 +5,7 @@ import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
 import com.tf2autobot.dbmanager.entity.TradeEvent;
+import com.tf2autobot.dbmanager.entity.TradeEventBptfListing;
 import com.tf2autobot.dbmanager.entity.TradeEventItem;
 import com.tf2autobot.dbmanager.entity.TradeEventSnapshot;
 import com.tf2autobot.dbmanager.repository.TradeEventItemRepository;
@@ -42,7 +43,8 @@ public class TradeEventService {
                        List<com.tf2autobot.dbmanager.dto.TradeEventDto.TradeItemDto> itemsGiven,
                        List<com.tf2autobot.dbmanager.dto.TradeEventDto.TradeItemDto> itemsReceived,
                        String status,
-                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.SnapshotDto> pricingSnapshot) {
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.SnapshotDto> pricingSnapshot,
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.BptfListingDto> bptfListings) {
         if (eventRepo.existsByOfferId(offerId)) return;
         TradeEvent event = new TradeEvent();
         event.setOfferId(offerId);
@@ -91,6 +93,22 @@ public class TradeEventService {
             }
         }
         event.setPricingSnapshot(snapshots);
+
+        List<TradeEventBptfListing> bptfSnap = new ArrayList<>();
+        if (bptfListings != null) {
+            for (var dto : bptfListings) {
+                TradeEventBptfListing l = new TradeEventBptfListing();
+                l.setSku(dto.sku());
+                l.setIntent(dto.intent());
+                l.setKeys(dto.keys());
+                l.setHalfScrap(dto.halfScrap());
+                l.setStock(dto.stock());
+                l.setListingLimit(dto.limit());
+                l.setTradeEvent(event);
+                bptfSnap.add(l);
+            }
+        }
+        event.setBptfListings(bptfSnap);
         eventRepo.save(event);
     }
 
@@ -183,9 +201,14 @@ public class TradeEventService {
                         s.getSku(), s.getBuyPriceRefined(), s.getSellPriceRefined(), s.getIntent(),
                         s.isEnabled(), s.isAutoprice(), s.getMinStock(), s.getMaxStock(), s.isAutoManaged()))
                 .toList();
+        List<TradeEventDetailDto.BptfListingDto> listings = e.getBptfListings().stream()
+                .map(l -> new TradeEventDetailDto.BptfListingDto(
+                        l.getSku(), l.getIntent(), l.getKeys(), l.getHalfScrap(),
+                        l.getStock(), l.getListingLimit()))
+                .toList();
         return new TradeEventDetailDto(
                 e.getId(), e.getOfferId(), e.getPartnerSteamId64(),
                 e.getProfitInRefined(), e.getTradedAt().toString(),
-                given, received, e.getStatus(), snapshot);
+                given, received, e.getStatus(), snapshot, listings);
     }
 }
