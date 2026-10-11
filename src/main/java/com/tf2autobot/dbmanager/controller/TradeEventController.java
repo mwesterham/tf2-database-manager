@@ -1,6 +1,7 @@
 package com.tf2autobot.dbmanager.controller;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
+import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
@@ -46,6 +47,15 @@ public class TradeEventController {
             @RequestParam(required = false) String item,
             @RequestParam(required = false) String status) {
         return service.list(page, size, sort, direction, partner, offerId, minProfit, maxProfit, dateFrom, dateTo, item, status);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TradeEventDetailDto> detail(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(service.getDetail(id));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/daily-profit")

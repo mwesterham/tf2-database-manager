@@ -1,6 +1,7 @@
 package com.tf2autobot.dbmanager.service;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
+import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
 import com.tf2autobot.dbmanager.entity.TradeEvent;
@@ -117,13 +118,13 @@ public class TradeEventService {
                 : java.util.Set.of();
         Specification<TradeEvent> spec = TradeEventSpecs.withFilters(partner, nameMatches, offerId, minProfit, maxProfit, dateFrom, dateTo, item, itemDefindexes, status);
         return eventRepo.findAll(spec, pageable).map(e -> {
-            List<String> given = e.getItems().stream()
+            List<TradeEventListItemDto.TradeItemDto> given = e.getItems().stream()
                     .filter(i -> "given".equals(i.getDirection()))
-                    .map(TradeEventItem::getSku)
+                    .map(i -> new TradeEventListItemDto.TradeItemDto(i.getSku(), i.getUsedPriceRefined()))
                     .toList();
-            List<String> received = e.getItems().stream()
+            List<TradeEventListItemDto.TradeItemDto> received = e.getItems().stream()
                     .filter(i -> "received".equals(i.getDirection()))
-                    .map(TradeEventItem::getSku)
+                    .map(i -> new TradeEventListItemDto.TradeItemDto(i.getSku(), i.getUsedPriceRefined()))
                     .toList();
             return new TradeEventListItemDto(
                     e.getId(),
@@ -158,5 +159,27 @@ public class TradeEventService {
                 .toList();
 
         return new TradeEventStatsDto(totalTrades, totalProfit, mostTraded, mostProfitable);
+    }
+
+    @Transactional(readOnly = true)
+    public TradeEventDetailDto getDetail(long id) {
+        TradeEvent e = eventRepo.findById(id)
+                .orElseThrow(() -> new java.util.NoSuchElementException("Trade " + id + " not found"));
+        List<TradeEventDetailDto.TradeItemDto> given = e.getItems().stream()
+                .filter(i -> "given".equals(i.getDirection()))
+                .map(i -> new TradeEventDetailDto.TradeItemDto(i.getSku(), i.getUsedPriceRefined()))
+                .toList();
+        List<TradeEventDetailDto.TradeItemDto> received = e.getItems().stream()
+                .filter(i -> "received".equals(i.getDirection()))
+                .map(i -> new TradeEventDetailDto.TradeItemDto(i.getSku(), i.getUsedPriceRefined()))
+                .toList();
+        List<TradeEventDetailDto.SnapshotEntryDto> snapshot = e.getPricingSnapshot().stream()
+                .map(s -> new TradeEventDetailDto.SnapshotEntryDto(
+                        s.getSku(), s.getBuyPriceRefined(), s.getSellPriceRefined(), s.getIntent()))
+                .toList();
+        return new TradeEventDetailDto(
+                e.getId(), e.getOfferId(), e.getPartnerSteamId64(),
+                e.getProfitInRefined(), e.getTradedAt().toString(),
+                given, received, e.getStatus(), snapshot);
     }
 }

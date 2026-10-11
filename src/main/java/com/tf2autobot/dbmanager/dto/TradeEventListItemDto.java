@@ -8,7 +8,9 @@ public record TradeEventListItemDto(
         String partnerSteamId64,
         double profitInRefined,
         String tradedAt,
-        List<String> itemsGiven,
-        List<String> itemsReceived,
+        List<TradeItemDto> itemsGiven,
+        List<TradeItemDto> itemsReceived,
         String status
-) {}
+) {
+    public record TradeItemDto(String sku, double usedPriceRefined) {}
+}
