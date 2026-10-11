@@ -100,10 +100,18 @@ public class TradeEventService {
                 TradeEventBptfListing l = new TradeEventBptfListing();
                 l.setSku(dto.sku());
                 l.setIntent(dto.intent());
-                l.setKeys(dto.keys());
-                l.setHalfScrap(dto.halfScrap());
-                l.setStock(dto.stock());
-                l.setListingLimit(dto.limit());
+                l.setSteamId(dto.steamId());
+                l.setUserName(dto.userName());
+                l.setRawValue(dto.rawValue());
+                l.setMetal(dto.metal());
+                l.setKeys(dto.keys() != null ? dto.keys() : 0L);
+                l.setMarketName(dto.marketName());
+                l.setDetails(dto.details());
+                l.setListedAt(dto.listedAt());
+                l.setUserPremium(dto.userPremium());
+                l.setUserOnline(dto.userOnline());
+                l.setUserBanned(dto.userBanned());
+                l.setUserTradeOfferUrl(dto.userTradeOfferUrl());
                 l.setTradeEvent(event);
                 bptfSnap.add(l);
             }
@@ -203,8 +211,12 @@ public class TradeEventService {
                 .toList();
         List<TradeEventDetailDto.BptfListingDto> listings = e.getBptfListings().stream()
                 .map(l -> new TradeEventDetailDto.BptfListingDto(
-                        l.getSku(), l.getIntent(), l.getKeys(), l.getHalfScrap(),
-                        l.getStock(), l.getListingLimit()))
+                        l.getSku(), l.getIntent(),
+                        l.getSteamId(), l.getUserName(),
+                        l.getRawValue(), l.getMetal(), l.getKeys(),
+                        l.getMarketName(), l.getDetails(), l.getListedAt(),
+                        l.getUserPremium(), l.getUserOnline(), l.getUserBanned(),
+                        l.getUserTradeOfferUrl()))
                 .toList();
         return new TradeEventDetailDto(
                 e.getId(), e.getOfferId(), e.getPartnerSteamId64(),

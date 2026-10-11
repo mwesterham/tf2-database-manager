@@ -24,15 +24,39 @@ public class TradeEventBptfListing {
     @Column(nullable = false)
     private String intent;
 
+    @Column(name = "steam_id")
+    private String steamId;
+
+    @Column(name = "user_name")
+    private String userName;
+
+    @Column(name = "raw_value")
+    private Double rawValue;
+
+    @Column
+    private Double metal;
+
     @Column(nullable = false)
-    private int keys;
+    private long keys;
 
-    @Column(name = "half_scrap", nullable = false)
-    private long halfScrap;
+    @Column(name = "market_name")
+    private String marketName;
 
-    @Column(nullable = false)
-    private int stock;
+    @Column
+    private String details;
 
-    @Column(name = "listing_limit", nullable = false)
-    private int listingLimit;
+    @Column(name = "listed_at")
+    private Long listedAt;
+
+    @Column(name = "user_premium")
+    private Boolean userPremium;
+
+    @Column(name = "user_online")
+    private Boolean userOnline;
+
+    @Column(name = "user_banned")
+    private Boolean userBanned;
+
+    @Column(name = "user_trade_offer_url")
+    private String userTradeOfferUrl;
 }
