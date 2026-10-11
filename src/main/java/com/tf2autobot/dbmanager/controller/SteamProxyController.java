@@ -27,7 +27,8 @@ public class SteamProxyController {
             String url = "https://api.steampowered.com/IEconService/GetTradeOffer/v1"
                     + "?key=" + steamApiKey
                     + "&tradeofferid=" + offerId
-                    + "&language=en";
+                    + "&language=en"
+                    + "&get_descriptions=1";
             HttpRequest req = HttpRequest.newBuilder(URI.create(url)).GET().build();
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
             return ResponseEntity.status(resp.statusCode())
