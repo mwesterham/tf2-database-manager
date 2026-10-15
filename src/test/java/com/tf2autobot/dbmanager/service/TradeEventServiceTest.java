@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 class TradeEventServiceTest {
@@ -131,5 +132,27 @@ class TradeEventServiceTest {
         assertEquals(0.0, stats.totalProfitInRefined(), 1e-9);
         assertTrue(stats.mostTradedItems().isEmpty());
         assertTrue(stats.mostProfitableItems().isEmpty());
+    }
+
+    @Test
+    void latestPurchasesMapRowsAndOnlyLookAfterDirectionFix() {
+        java.time.Instant at = java.time.Instant.parse("2026-10-13T15:24:00Z");
+        when(itemRepo.findLatestPurchases(any(), any(), anyInt())).thenReturn(List.<Object[]>of(
+                new Object[]{"31503;11", 1793L, "9421414300", java.sql.Timestamp.from(at), 38.0}));
+
+        var result = service.getLatestPurchases(List.of("31503;11"), 1);
+
+        assertEquals(1, result.size());
+        assertEquals("31503;11", result.get(0).sku());
+        assertEquals(1793L, result.get(0).tradeEventId());
+        assertEquals(at, result.get(0).tradedAt());
+        assertEquals(38.0, result.get(0).usedPriceRefined());
+        verify(itemRepo).findLatestPurchases(List.of("31503;11"), TradeEventService.DIRECTION_FIX_AT, 1);
+    }
+
+    @Test
+    void latestPurchasesWithNoSkusSkipsQuery() {
+        assertTrue(service.getLatestPurchases(List.of(), 1).isEmpty());
+        verifyNoInteractions(itemRepo);
     }
 }

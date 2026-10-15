@@ -1,6 +1,7 @@
 package com.tf2autobot.dbmanager.service;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
+import com.tf2autobot.dbmanager.dto.PurchaseDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
@@ -19,7 +20,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -168,6 +173,30 @@ public class TradeEventService {
                     e.getStatus()
             );
         });
+    }
+
+    // Received-offer rows before this may have given/received swapped (direction fix, 2026-10-12)
+    static final Instant DIRECTION_FIX_AT = Instant.parse("2026-10-12T05:03:58Z");
+
+    /** Most recent units the bot received per SKU (up to perSku each), from accepted trades after the direction fix. */
+    @Transactional(readOnly = true)
+    public List<PurchaseDto> getLatestPurchases(Collection<String> skus, int perSku) {
+        if (skus.isEmpty()) return List.of();
+        return itemRepo.findLatestPurchases(skus, DIRECTION_FIX_AT, perSku).stream()
+                .map(r -> new PurchaseDto(
+                        (String) r[0],
+                        ((Number) r[1]).longValue(),
+                        (String) r[2],
+                        toInstant(r[3]),
+                        ((Number) r[4]).doubleValue()))
+                .toList();
+    }
+
+    private static Instant toInstant(Object v) {
+        if (v instanceof Instant i) return i;
+        if (v instanceof Timestamp t) return t.toInstant();
+        if (v instanceof OffsetDateTime o) return o.toInstant();
+        throw new IllegalStateException("Unexpected traded_at type: " + v.getClass());
     }
 
     @Transactional(readOnly = true)

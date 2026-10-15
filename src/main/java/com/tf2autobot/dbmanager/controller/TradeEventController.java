@@ -1,6 +1,7 @@
 package com.tf2autobot.dbmanager.controller;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
+import com.tf2autobot.dbmanager.dto.PurchaseDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
@@ -48,6 +49,13 @@ public class TradeEventController {
             @RequestParam(required = false) String item,
             @RequestParam(required = false) String status) {
         return service.list(page, size, sort, direction, partner, offerId, minProfit, maxProfit, dateFrom, dateTo, item, status);
+    }
+
+    /** Latest purchases (units received in accepted trades) per SKU; perSku capped at 50. */
+    @GetMapping("/purchases")
+    public List<PurchaseDto> purchases(@RequestParam List<String> skus,
+                                       @RequestParam(defaultValue = "1") int perSku) {
+        return service.getLatestPurchases(skus, Math.max(1, Math.min(perSku, 50)));
     }
 
     @GetMapping("/{id}")
