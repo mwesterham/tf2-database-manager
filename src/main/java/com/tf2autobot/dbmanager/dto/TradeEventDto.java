@@ -10,7 +10,8 @@ public record TradeEventDto(
         List<TradeItemDto> itemsReceived,
         String status,
         List<SnapshotDto> pricingSnapshot,
-        List<BptfListingDto> bptfListings
+        List<BptfListingDto> bptfListings,
+        String reason
 ) {
     public record TradeItemDto(String sku, double usedPriceRefined) {}
     public record SnapshotDto(String sku, double buyPriceRefined, double sellPriceRefined, String intent,

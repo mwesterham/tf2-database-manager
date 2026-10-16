@@ -49,13 +49,15 @@ public class TradeEventService {
                        List<com.tf2autobot.dbmanager.dto.TradeEventDto.TradeItemDto> itemsReceived,
                        String status,
                        List<com.tf2autobot.dbmanager.dto.TradeEventDto.SnapshotDto> pricingSnapshot,
-                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.BptfListingDto> bptfListings) {
+                       List<com.tf2autobot.dbmanager.dto.TradeEventDto.BptfListingDto> bptfListings,
+                       String reason) {
         if (eventRepo.existsByOfferId(offerId)) return;
         TradeEvent event = new TradeEvent();
         event.setOfferId(offerId);
         event.setPartnerSteamId64(partnerSteamId64);
         event.setProfitInRefined(profitInRefined);
         event.setStatus(status != null ? status : "accepted");
+        event.setReason(reason);
 
         List<TradeEventItem> items = new ArrayList<>();
         if (itemsGiven != null) {
@@ -170,7 +172,8 @@ public class TradeEventService {
                     e.getTradedAt().toString(),
                     given,
                     received,
-                    e.getStatus()
+                    e.getStatus(),
+                    e.getReason()
             );
         });
     }
@@ -250,6 +253,6 @@ public class TradeEventService {
         return new TradeEventDetailDto(
                 e.getId(), e.getOfferId(), e.getPartnerSteamId64(),
                 e.getProfitInRefined(), e.getTradedAt().toString(),
-                given, received, e.getStatus(), snapshot, listings);
+                given, received, e.getStatus(), e.getReason(), snapshot, listings);
     }
 }

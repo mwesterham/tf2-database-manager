@@ -10,7 +10,8 @@ public record TradeEventListItemDto(
         String tradedAt,
         List<TradeItemDto> itemsGiven,
         List<TradeItemDto> itemsReceived,
-        String status
+        String status,
+        String reason
 ) {
     public record TradeItemDto(String sku, double usedPriceRefined) {}
 }

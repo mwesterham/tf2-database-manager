@@ -11,6 +11,7 @@ public record TradeEventDetailDto(
         List<TradeItemDto> itemsGiven,
         List<TradeItemDto> itemsReceived,
         String status,
+        String reason,
         List<SnapshotEntryDto> pricingSnapshot,
         List<BptfListingDto> bptfListings
 ) {

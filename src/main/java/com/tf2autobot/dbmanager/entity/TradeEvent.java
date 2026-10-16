@@ -33,6 +33,10 @@ public class TradeEvent {
     @Column(name = "status", nullable = false)
     private String status = "accepted";
 
+    // The bot's evaluator reason for declined/review offers; null otherwise
+    @Column(name = "reason")
+    private String reason;
+
     @OneToMany(mappedBy = "tradeEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TradeEventItem> items = new ArrayList<>();
 

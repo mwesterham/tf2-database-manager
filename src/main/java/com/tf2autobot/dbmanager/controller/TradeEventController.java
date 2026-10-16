@@ -30,7 +30,8 @@ public class TradeEventController {
                 dto.itemsReceived()   != null ? dto.itemsReceived()   : java.util.List.of(),
                 dto.status(),
                 dto.pricingSnapshot() != null ? dto.pricingSnapshot() : java.util.List.of(),
-                dto.bptfListings()    != null ? dto.bptfListings()    : java.util.List.of());
+                dto.bptfListings()    != null ? dto.bptfListings()    : java.util.List.of(),
+                dto.reason());
         return ResponseEntity.ok().build();
     }
 
