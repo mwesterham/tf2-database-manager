@@ -31,20 +31,20 @@ class TradeEventServiceTest {
         eventRepo = mock(TradeEventRepository.class);
         itemRepo = mock(TradeEventItemRepository.class);
         service = new TradeEventService(eventRepo, itemRepo,
-                mock(SteamUserService.class), mock(SchemaService.class));
+                mock(SteamUserService.class), mock(SchemaService.class), mock(RealizedProfitService.class));
     }
 
     @Test
     void recordSavesEvent() {
-        when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
         service.record("offer-1", "76561198000000000", 1.33,
                 List.of(item("5021;6")), List.of(item("30;6")), "accepted", List.of(), List.of(), null);
-        verify(eventRepo).save(any(TradeEvent.class));
+        verify(eventRepo).saveAndFlush(any(TradeEvent.class));
     }
 
     @Test
     void recordStoresItemsWithCorrectDirections() {
-        when(eventRepo.save(any())).thenAnswer(inv -> {
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> {
             TradeEvent e = inv.getArgument(0);
             assertEquals(2, e.getItems().size());
             assertEquals("5021;6", e.getItems().get(0).getSku());
@@ -59,7 +59,7 @@ class TradeEventServiceTest {
 
     @Test
     void recordStoresUsedPrices() {
-        when(eventRepo.save(any())).thenAnswer(inv -> {
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> {
             TradeEvent e = inv.getArgument(0);
             assertEquals(1.33, e.getItems().get(0).getUsedPriceRefined(), 1e-9);
             assertEquals(2.55, e.getItems().get(1).getUsedPriceRefined(), 1e-9);
@@ -73,7 +73,7 @@ class TradeEventServiceTest {
 
     @Test
     void recordStoresPricingSnapshot() {
-        when(eventRepo.save(any())).thenAnswer(inv -> {
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> {
             TradeEvent e = inv.getArgument(0);
             assertEquals(1, e.getPricingSnapshot().size());
             assertEquals("5021;6", e.getPricingSnapshot().get(0).getSku());
@@ -90,7 +90,7 @@ class TradeEventServiceTest {
 
     @Test
     void recordHandlesEmptyItemLists() {
-        when(eventRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
         assertDoesNotThrow(() -> service.record("offer-2", "76561198000000000", 0.0,
                 List.of(), List.of(), "accepted", List.of(), List.of(), null));
     }
@@ -158,7 +158,7 @@ class TradeEventServiceTest {
 
     @Test
     void recordStoresDeclineReason() {
-        when(eventRepo.save(any())).thenAnswer(inv -> {
+        when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> {
             TradeEvent e = inv.getArgument(0);
             assertEquals("review", e.getStatus());
             assertEquals("INVALID_ITEMS: 30540;11 not in pricelist", e.getReason());
@@ -166,6 +166,6 @@ class TradeEventServiceTest {
         });
         service.record("offer-r", "76561198000000002", 0.0, List.of(), List.of(item("30540;11")),
                 "review", List.of(), List.of(), "INVALID_ITEMS: 30540;11 not in pricelist");
-        verify(eventRepo).save(any(TradeEvent.class));
+        verify(eventRepo).saveAndFlush(any(TradeEvent.class));
     }
 }

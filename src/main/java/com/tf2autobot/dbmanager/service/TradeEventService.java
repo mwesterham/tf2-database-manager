@@ -2,6 +2,7 @@ package com.tf2autobot.dbmanager.service;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
 import com.tf2autobot.dbmanager.dto.PurchaseDto;
+import com.tf2autobot.dbmanager.dto.RealizedDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
 import com.tf2autobot.dbmanager.dto.TradeEventStatsDto;
@@ -26,6 +27,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -35,13 +37,16 @@ public class TradeEventService {
     private final TradeEventItemRepository itemRepo;
     private final SteamUserService steamUserService;
     private final SchemaService schemaService;
+    private final RealizedProfitService realizedProfitService;
 
     public TradeEventService(TradeEventRepository eventRepo, TradeEventItemRepository itemRepo,
-                             SteamUserService steamUserService, SchemaService schemaService) {
+                             SteamUserService steamUserService, SchemaService schemaService,
+                             RealizedProfitService realizedProfitService) {
         this.eventRepo = eventRepo;
         this.itemRepo = itemRepo;
         this.steamUserService = steamUserService;
         this.schemaService = schemaService;
+        this.realizedProfitService = realizedProfitService;
     }
 
     public void record(String offerId, String partnerSteamId64, double profitInRefined,
@@ -124,7 +129,11 @@ public class TradeEventService {
             }
         }
         event.setBptfListings(bptfSnap);
-        eventRepo.save(event);
+        eventRepo.saveAndFlush(event);
+        // A sale can realize profit against an earlier purchase; re-pair the whole history
+        if ("accepted".equals(event.getStatus())) {
+            realizedProfitService.rebuild();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -137,7 +146,7 @@ public class TradeEventService {
                 .toList();
     }
 
-    private static final List<String> ALLOWED_SORT_FIELDS = List.of("id", "tradedAt", "profitInRefined", "partnerSteamId64");
+    private static final List<String> ALLOWED_SORT_FIELDS = List.of("id", "tradedAt", "profitInRefined", "realizedProfitInRefined", "partnerSteamId64");
 
     @Transactional(readOnly = true)
     public Page<TradeEventListItemDto> list(int page, int size, String sort, String direction,
@@ -147,7 +156,12 @@ public class TradeEventService {
                                             String item, String status) {
         Sort.Direction dir = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         String safeSort = ALLOWED_SORT_FIELDS.contains(sort) ? sort : "id";
-        Pageable pageable = PageRequest.of(page, Math.min(size, 100), Sort.by(dir, safeSort));
+        boolean byRealized = "realizedProfitInRefined".equals(safeSort);
+        // Realized profit is null on most trades. Criteria queries can't say NULLS LAST, so that sort
+        // is applied in the specification below and the pageable stays unsorted.
+        Pageable pageable = byRealized
+                ? PageRequest.of(page, Math.min(size, 100))
+                : PageRequest.of(page, Math.min(size, 100), Sort.by(dir, safeSort));
         java.util.Set<String> nameMatches = (partner != null && !partner.isBlank())
                 ? steamUserService.findIdsByName(partner)
                 : java.util.Set.of();
@@ -155,7 +169,10 @@ public class TradeEventService {
                 ? schemaService.findDefindexesByName(item)
                 : java.util.Set.of();
         Specification<TradeEvent> spec = TradeEventSpecs.withFilters(partner, nameMatches, offerId, minProfit, maxProfit, dateFrom, dateTo, item, itemDefindexes, status);
-        return eventRepo.findAll(spec, pageable).map(e -> {
+        if (byRealized) spec = spec.and(TradeEventSpecs.orderByRealizedNullsLast(dir == Sort.Direction.ASC));
+        Page<TradeEvent> trades = eventRepo.findAll(spec, pageable);
+        Map<Long, RealizedDto> realized = realizedProfitService.describe(trades.getContent());
+        return trades.map(e -> {
             List<TradeEventListItemDto.TradeItemDto> given = e.getItems().stream()
                     .filter(i -> "given".equals(i.getDirection()))
                     .map(i -> new TradeEventListItemDto.TradeItemDto(i.getSku(), i.getUsedPriceRefined()))
@@ -173,7 +190,9 @@ public class TradeEventService {
                     given,
                     received,
                     e.getStatus(),
-                    e.getReason()
+                    e.getReason(),
+                    e.getRealizedProfitInRefined(),
+                    realized.get(e.getId())
             );
         });
     }
@@ -253,6 +272,8 @@ public class TradeEventService {
         return new TradeEventDetailDto(
                 e.getId(), e.getOfferId(), e.getPartnerSteamId64(),
                 e.getProfitInRefined(), e.getTradedAt().toString(),
-                given, received, e.getStatus(), e.getReason(), snapshot, listings);
+                given, received, e.getStatus(), e.getReason(),
+                e.getRealizedProfitInRefined(), realizedProfitService.describe(List.of(e)).get(e.getId()),
+                snapshot, listings);
     }
 }

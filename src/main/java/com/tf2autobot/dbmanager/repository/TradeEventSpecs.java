@@ -43,10 +43,10 @@ public class TradeEventSpecs {
                 predicates.add(cb.like(root.get("offerId"), "%" + offerId.trim() + "%"));
 
             if (minProfit != null)
-                predicates.add(cb.greaterThanOrEqualTo(root.get("profitInRefined"), minProfit));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("realizedProfitInRefined"), minProfit));
 
             if (maxProfit != null)
-                predicates.add(cb.lessThanOrEqualTo(root.get("profitInRefined"), maxProfit));
+                predicates.add(cb.lessThanOrEqualTo(root.get("realizedProfitInRefined"), maxProfit));
 
             if (dateFrom != null && !dateFrom.isBlank()) {
                 Instant from = LocalDate.parse(dateFrom).atStartOfDay(ZoneOffset.UTC).toInstant();
@@ -75,6 +75,19 @@ public class TradeEventSpecs {
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    /** Orders by realized profit with nulls last (either direction), then newest first. Adds no filter. */
+    public static Specification<TradeEvent> orderByRealizedNullsLast(boolean ascending) {
+        return (root, query, cb) -> {
+            var realized = root.<Double>get("realizedProfitInRefined");
+            var nullsLast = cb.selectCase().when(cb.isNull(realized), 1).otherwise(0);
+            query.orderBy(
+                    cb.asc(nullsLast),
+                    ascending ? cb.asc(realized) : cb.desc(realized),
+                    cb.desc(root.get("id")));
+            return null;
         };
     }
 }

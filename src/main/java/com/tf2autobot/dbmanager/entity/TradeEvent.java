@@ -33,6 +33,11 @@ public class TradeEvent {
     @Column(name = "status", nullable = false)
     private String status = "accepted";
 
+    // Sum over units sold in this trade of (sale price − matched purchase price); null when nothing
+    // sold here was paired with a recorded purchase. Maintained by RealizedProfitService.
+    @Column(name = "realized_profit_refined")
+    private Double realizedProfitInRefined;
+
     // The bot's evaluator reason for declined/review offers; null otherwise
     @Column(name = "reason")
     private String reason;

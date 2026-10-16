@@ -11,7 +11,9 @@ public record TradeEventListItemDto(
         List<TradeItemDto> itemsGiven,
         List<TradeItemDto> itemsReceived,
         String status,
-        String reason
+        String reason,
+        Double realizedProfitInRefined,
+        RealizedDto realized
 ) {
     public record TradeItemDto(String sku, double usedPriceRefined) {}
 }
