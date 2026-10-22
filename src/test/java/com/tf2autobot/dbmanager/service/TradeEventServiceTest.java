@@ -157,6 +157,29 @@ class TradeEventServiceTest {
     }
 
     @Test
+    void heldPurchasesMapRowsOldestFirstAndOnlyLookAfterDirectionFix() {
+        java.time.Instant older = java.time.Instant.parse("2026-10-13T15:24:00Z");
+        java.time.Instant newer = java.time.Instant.parse("2026-10-14T09:00:00Z");
+        when(itemRepo.findHeldPurchases(any(), any())).thenReturn(List.<Object[]>of(
+                new Object[]{"31503;11", 1793L, "9421414300", java.sql.Timestamp.from(older), 38.0},
+                new Object[]{"31503;11", 1801L, "9421414400", java.sql.Timestamp.from(newer), 40.0}));
+
+        var result = service.getHeldPurchases(List.of("31503;11"));
+
+        assertEquals(2, result.size());
+        assertEquals(older, result.get(0).tradedAt());
+        assertEquals(38.0, result.get(0).usedPriceRefined());
+        assertEquals(1801L, result.get(1).tradeEventId());
+        verify(itemRepo).findHeldPurchases(List.of("31503;11"), TradeEventService.DIRECTION_FIX_AT);
+    }
+
+    @Test
+    void heldPurchasesWithNoSkusSkipsQuery() {
+        assertTrue(service.getHeldPurchases(List.of()).isEmpty());
+        verifyNoInteractions(itemRepo);
+    }
+
+    @Test
     void recordStoresDeclineReason() {
         when(eventRepo.saveAndFlush(any())).thenAnswer(inv -> {
             TradeEvent e = inv.getArgument(0);

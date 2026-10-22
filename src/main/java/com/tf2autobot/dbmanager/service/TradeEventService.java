@@ -214,6 +214,19 @@ public class TradeEventService {
                 .toList();
     }
 
+    /** Units still held per SKU (not yet paired with a sale under FIFO), oldest first. */
+    public List<PurchaseDto> getHeldPurchases(Collection<String> skus) {
+        if (skus.isEmpty()) return List.of();
+        return itemRepo.findHeldPurchases(skus, DIRECTION_FIX_AT).stream()
+                .map(r -> new PurchaseDto(
+                        (String) r[0],
+                        ((Number) r[1]).longValue(),
+                        (String) r[2],
+                        toInstant(r[3]),
+                        ((Number) r[4]).doubleValue()))
+                .toList();
+    }
+
     private static Instant toInstant(Object v) {
         if (v instanceof Instant i) return i;
         if (v instanceof Timestamp t) return t.toInstant();

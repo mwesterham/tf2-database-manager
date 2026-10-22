@@ -59,6 +59,12 @@ public class TradeEventController {
         return service.getLatestPurchases(skus, Math.max(1, Math.min(perSku, 50)));
     }
 
+    /** Units still held per SKU (bought after the 2026-10-12 direction fix, not yet sold under FIFO), oldest first. */
+    @GetMapping("/held-cost")
+    public List<PurchaseDto> heldCost(@RequestParam List<String> skus) {
+        return service.getHeldPurchases(skus);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TradeEventDetailDto> detail(@PathVariable long id) {
         try {

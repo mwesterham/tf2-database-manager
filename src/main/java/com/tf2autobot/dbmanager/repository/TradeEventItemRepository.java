@@ -49,6 +49,21 @@ public interface TradeEventItemRepository extends JpaRepository<TradeEventItem, 
                                        @Param("since") Instant since,
                                        @Param("perSku") int perSku);
 
+    // Units the bot still holds per SKU: received in accepted trades since `since`, not yet paired
+    // with a sale in trade_realized_pairs (FIFO), oldest first. Their price is the bot's cost basis.
+    @Query(value = """
+            SELECT tei.sku, te.id AS trade_event_id, te.offer_id, te.traded_at, tei.used_price_refined
+            FROM trade_event_items tei
+            JOIN trade_events te ON tei.trade_event_id = te.id
+            WHERE tei.direction = 'received'
+              AND te.status = 'accepted'
+              AND te.traded_at >= :since
+              AND tei.sku IN (:skus)
+              AND NOT EXISTS (SELECT 1 FROM trade_realized_pairs p WHERE p.buy_item_id = tei.id)
+            ORDER BY tei.sku, te.traded_at, tei.id
+            """, nativeQuery = true)
+    List<Object[]> findHeldPurchases(@Param("skus") Collection<String> skus, @Param("since") Instant since);
+
     @Query(value = """
             SELECT tei.sku, SUM(te.profit_in_refined) AS total_profit
             FROM trade_event_items tei
