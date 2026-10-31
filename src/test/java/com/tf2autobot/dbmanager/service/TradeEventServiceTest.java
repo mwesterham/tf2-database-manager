@@ -174,6 +174,25 @@ class TradeEventServiceTest {
     }
 
     @Test
+    void realizedPairsMapBothTimestamps() {
+        java.time.Instant bought = java.time.Instant.parse("2026-10-27T07:18:00Z");
+        java.time.Instant sold = java.time.Instant.parse("2026-10-31T00:48:00Z");
+        java.time.Instant since = java.time.Instant.parse("2026-10-17T00:00:00Z");
+        when(itemRepo.findRealizedPairsSince(since)).thenReturn(List.<Object[]>of(
+                new Object[]{"31404;6", 11.78, 12.34, java.sql.Timestamp.from(bought), java.time.OffsetDateTime.parse("2026-10-31T00:48:00Z"), 1871L, 1878L}));
+
+        var result = service.getRealizedSince(since);
+
+        assertEquals(1, result.size());
+        assertEquals("31404;6", result.get(0).sku());
+        assertEquals(bought, result.get(0).boughtAt());
+        assertEquals(sold, result.get(0).soldAt());
+        assertEquals(11.78, result.get(0).costRefined());
+        assertEquals(1878L, result.get(0).sellTradeEventId());
+        verify(itemRepo).findRealizedPairsSince(since);
+    }
+
+    @Test
     void heldPurchasesWithNoSkusSkipsQuery() {
         assertTrue(service.getHeldPurchases(List.of()).isEmpty());
         verifyNoInteractions(itemRepo);

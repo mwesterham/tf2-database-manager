@@ -64,6 +64,19 @@ public interface TradeEventItemRepository extends JpaRepository<TradeEventItem, 
             """, nativeQuery = true)
     List<Object[]> findHeldPurchases(@Param("skus") Collection<String> skus, @Param("since") Instant since);
 
+    /** Completed buy→sell pairs sold at or after {@code since}, newest sale first (both trades accepted). */
+    @Query(value = """
+            SELECT p.sku, p.cost_refined, p.revenue_refined, b.traded_at, s.traded_at,
+                   p.buy_trade_event_id, p.sell_trade_event_id
+            FROM trade_realized_pairs p
+            JOIN trade_events b ON b.id = p.buy_trade_event_id
+            JOIN trade_events s ON s.id = p.sell_trade_event_id
+            WHERE b.status = 'accepted' AND s.status = 'accepted'
+              AND s.traded_at >= :since
+            ORDER BY s.traded_at DESC, p.id DESC
+            """, nativeQuery = true)
+    List<Object[]> findRealizedPairsSince(@Param("since") Instant since);
+
     @Query(value = """
             SELECT tei.sku, SUM(te.profit_in_refined) AS total_profit
             FROM trade_event_items tei

@@ -2,6 +2,7 @@ package com.tf2autobot.dbmanager.controller;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
 import com.tf2autobot.dbmanager.dto.PurchaseDto;
+import com.tf2autobot.dbmanager.dto.RealizedPairDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
@@ -63,6 +64,16 @@ public class TradeEventController {
     @GetMapping("/held-cost")
     public List<PurchaseDto> heldCost(@RequestParam List<String> skus) {
         return service.getHeldPurchases(skus);
+    }
+
+    /** Completed flips (buy→sell pairs) sold at or after {@code since} (ISO-8601), newest first. */
+    @GetMapping("/realized")
+    public ResponseEntity<List<RealizedPairDto>> realized(@RequestParam String since) {
+        try {
+            return ResponseEntity.ok(service.getRealizedSince(java.time.Instant.parse(since)));
+        } catch (java.time.format.DateTimeParseException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

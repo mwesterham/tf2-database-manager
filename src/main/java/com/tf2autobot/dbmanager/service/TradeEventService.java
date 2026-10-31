@@ -2,6 +2,7 @@ package com.tf2autobot.dbmanager.service;
 
 import com.tf2autobot.dbmanager.dto.DailyProfitDto;
 import com.tf2autobot.dbmanager.dto.PurchaseDto;
+import com.tf2autobot.dbmanager.dto.RealizedPairDto;
 import com.tf2autobot.dbmanager.dto.RealizedDto;
 import com.tf2autobot.dbmanager.dto.TradeEventDetailDto;
 import com.tf2autobot.dbmanager.dto.TradeEventListItemDto;
@@ -224,6 +225,21 @@ public class TradeEventService {
                         (String) r[2],
                         toInstant(r[3]),
                         ((Number) r[4]).doubleValue()))
+                .toList();
+    }
+
+    /** Completed flips sold at or after {@code since}, newest first. Storage only: the bot decides what they mean. */
+    @Transactional(readOnly = true)
+    public List<RealizedPairDto> getRealizedSince(Instant since) {
+        return itemRepo.findRealizedPairsSince(since).stream()
+                .map(r -> new RealizedPairDto(
+                        (String) r[0],
+                        ((Number) r[1]).doubleValue(),
+                        ((Number) r[2]).doubleValue(),
+                        toInstant(r[3]),
+                        toInstant(r[4]),
+                        ((Number) r[5]).longValue(),
+                        ((Number) r[6]).longValue()))
                 .toList();
     }
 
