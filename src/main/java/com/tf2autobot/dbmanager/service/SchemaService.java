@@ -25,20 +25,59 @@ public class SchemaService {
     private final ObjectMapper mapper;
 
     private volatile Map<Integer, String> defindexToName = Map.of();
+    private volatile long loadedAtMs = 0;
 
+    static final long RETRY_EVERY_MS = 60_000L;
+    static final long REFRESH_AFTER_MS = 24 * 3_600_000L;
+
+    // Swappable for tests
+    java.util.function.Supplier<String> fetcher = SchemaService::download;
+    java.util.function.LongSupplier clock = System::currentTimeMillis;
+
+    private final java.util.concurrent.ScheduledExecutorService scheduler =
+            java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "schema-refresh");
+                t.setDaemon(true);
+                return t;
+            });
+
+    /**
+     * Loads the schema at startup, then checks every minute: download again while it isn't loaded (on 2026-10-31
+     * one failed startup download left every item name blank until the next restart) or once it's a day old.
+     */
     @PostConstruct
     public void init() {
+        refreshIfNeeded();
+        scheduler.scheduleWithFixedDelay(this::refreshIfNeeded, RETRY_EVERY_MS, RETRY_EVERY_MS,
+                java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    @jakarta.annotation.PreDestroy
+    public void shutdown() {
+        scheduler.shutdownNow();
+    }
+
+    /** Downloads the schema if it isn't loaded or is over a day old. A failure keeps the names we have. */
+    void refreshIfNeeded() {
+        long now = clock.getAsLong();
+        boolean loaded = !defindexToName.isEmpty();
+        if (loaded && now - loadedAtMs < REFRESH_AFTER_MS) return;
         try {
-            String json = RestClient.create()
-                    .get()
-                    .uri(SCHEMA_URL)
-                    .retrieve()
-                    .body(String.class);
-            loadSchema(json);
+            loadSchema(fetcher.get());
+            loadedAtMs = now;
             log.info("TF2 schema loaded: {} items", defindexToName.size());
         } catch (Exception e) {
-            log.warn("Failed to load TF2 schema: {}", e.getMessage());
+            log.warn("Failed to load TF2 schema{}: {}", loaded ? " (keeping the previous one)" : " — retrying every minute",
+                    e.getMessage());
         }
+    }
+
+    private static String download() {
+        return RestClient.create().get().uri(SCHEMA_URL).retrieve().body(String.class);
+    }
+
+    boolean isLoaded() {
+        return !defindexToName.isEmpty();
     }
 
     void loadSchema(String json) throws Exception {
